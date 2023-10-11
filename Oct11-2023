@@ -1,0 +1,112 @@
+#region VEXcode Generated Robot Configuration
+from vex import *
+import urandom
+
+# Brain should be defined by default
+brain=Brain()
+
+# Robot configuration code
+controller_1 = Controller(PRIMARY)
+
+
+# wait for rotation sensor to fully initialize
+wait(30, MSEC)
+
+
+def play_vexcode_sound(sound_name):
+    # Helper to make playing sounds from the V5 in VEXcode easier and
+    # keeps the code cleaner by making it clear what is happening.
+    print("VEXPlaySound:" + sound_name)
+    wait(5, MSEC)
+
+# add a small delay to make sure we don't print in the middle of the REPL header
+wait(200, MSEC)
+# clear the console to make sure we don't have the REPL in the console
+print("\033[2J")
+
+#endregion VEXcode Generated Robot Configuration
+from vex import *
+
+# Brain should be defined by default
+brain=Brain()
+
+class RightMotorGroup:
+    front = Motor(Ports.PORT9, GearSetting.RATIO_18_1, False) # right motor a
+    back = Motor(Ports.PORT10, GearSetting.RATIO_18_1, False) # right motor b
+
+RightMotors = RightMotorGroup()
+
+right_drive_smart = MotorGroup(RightMotors.front, RightMotors.back)
+
+class LeftMotorsGroup: 
+    front = Motor(Ports.PORT2, GearSetting.RATIO_18_1, True)
+    back = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
+
+LeftMotors = LeftMotorsGroup()
+
+left_drive_smart = MotorGroup(LeftMotors.front, LeftMotors.back)
+
+drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 319.19, 295, 40, MM, 1)
+Intake_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_6_1, False)
+Intake_motor_b = Motor(Ports.PORT5, GearSetting.RATIO_6_1, True)
+Intake = MotorGroup(Intake_motor_a, Intake_motor_b)
+controller_1 = Controller(PRIMARY)
+
+wait(30, MSEC)
+
+
+
+wait(200, MSEC)
+
+
+def pre_autonomous():
+    # actions to do when the program starts
+    brain.screen.clear_screen()
+    brain.screen.print("pre auton code")
+    wait(4, SECONDS)
+
+def autonomous():
+    brain.screen.clear_screen()
+    brain.screen.print("autonomous code")
+    # place automonous code here
+
+def drive():
+        if controller_1.axis3.position() > 0:
+            drivetrain.drive(FORWARD)
+        elif controller_1.axis3.position() < 0:
+            drivetrain.drive(REVERSE)
+        else:
+            drivetrain.stop()
+
+def turn():
+        if controller_1.axis1.position() > 0:
+            drivetrain.turn(RIGHT)
+        elif controller_1.axis1.position() < 0:
+            drivetrain.turn(LEFT)
+        else:
+            drivetrain.stop()
+    
+def intake():
+        wait(20, MSEC)
+        Intake.set_velocity(69, PERCENT)
+        drivetrain.set_drive_velocity(69, PERCENT)
+        if controller_1.buttonR2.pressing():
+            Intake.spin(FORWARD)
+        elif controller_1.buttonR1.pressing():
+            Intake.spin(REVERSE)
+        else:
+            Intake.stop()
+
+def user_control():
+    brain.screen.clear_screen()
+
+    on = True 
+
+    while on:
+        intake()
+        drive()
+        turn()
+
+# create competition instance
+comp = Competition(user_control, autonomous)
+pre_autonomous()
